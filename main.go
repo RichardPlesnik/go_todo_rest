@@ -13,6 +13,13 @@ func main() {
 
 	flag.Parse()
 
-	log.Println("Starting server")
+	storage, err := NewStorage("sqlite3", "./todos.db")
+	if err != nil {
+		log.Fatal("Can not connect to data storage", err)
+		return
+	}
 
+	log.Println("Starting server")
+	server := NewServer(storage)
+	server.Serve(port)
 }
