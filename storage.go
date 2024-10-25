@@ -9,7 +9,7 @@ import (
 
 type todoStorage interface {
 	ReadTodos() ([]Todo, error)
-	CreateTodo(name string, content string) error
+	CreateTodo(subject string, details string, priority int, dueToDate string) error
 	DeleteTodo(id string) error
 	// TODO: Add function to mark TODO as DONE
 }
@@ -30,7 +30,7 @@ func NewStorage(dbType, dbName string) (StorageImpl, error) {
 }
 
 func (s StorageImpl) ReadTodos() ([]Todo, error) {
-	rows, err := s.connection.Query("SELECT id, name, content, resolved FROM todos ORDER BY id")
+	rows, err := s.connection.Query("SELECT id, subject, details, priority, due_to_date, resolved FROM todos ORDER BY id")
 	if err != nil {
 		return []Todo{}, err
 	}
@@ -40,27 +40,31 @@ func (s StorageImpl) ReadTodos() ([]Todo, error) {
 
 	for rows.Next() {
 		var id int
-		var name string
-		var content string
+		var subject string
+		var details string
+		var priority int
+		var dueToDate string
 		var resolved bool
 
-		if err := rows.Scan(&id, &name, &content, &resolved); err != nil {
+		if err := rows.Scan(&id, &subject, &details, &priority, &dueToDate, &resolved); err != nil {
 			return todos, err
 		}
 		todos = append(todos, Todo{
-			ID:       id,
-			Name:     name,
-			Content:  content,
-			Resolved: resolved,
+			ID:        id,
+			Subject:   subject,
+			Details:   details,
+			Priority:  priority,
+			DueToDate: dueToDate,
+			Resolved:  resolved,
 		})
 	}
 
 	return todos, nil
 }
 
-func (s StorageImpl) CreateTodo(name string, surname string) error {
-	statement, err := s.connection.Prepare("INSERT INTO todos(name, content, false) VALUES (?, ?, ?)")
-	_, err = statement.Exec(name, surname)
+func (s StorageImpl) CreateTodo(subject string, details string, priority int, dueToDate string) error {
+	statement, err := s.connection.Prepare("INSERT INTO todos(subject, details, priority, due_to_date, resolved) VALUES (?, ?, ?, ?, 0)")
+	_, err = statement.Exec(subject, details, priority, dueToDate)
 	return err
 }
 

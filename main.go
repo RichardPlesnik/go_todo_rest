@@ -13,6 +13,7 @@ func main() {
 
 	flag.Parse()
 
+	// TODO: as parameters + configuration
 	storage, err := NewStorage("sqlite3", "./todos.db")
 	if err != nil {
 		log.Fatal("Can not connect to data storage", err)

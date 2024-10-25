@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 	"text/template"
 )
 
@@ -12,12 +13,12 @@ type Server interface {
 }
 
 type ServerImpl struct {
-	userStorage todoStorage
+	todoStorage todoStorage
 }
 
 func NewServer(todoStorage todoStorage) Server {
 	return ServerImpl{
-		userStorage: todoStorage,
+		todoStorage: todoStorage,
 	}
 }
 
@@ -38,10 +39,13 @@ func (s ServerImpl) listUsersPageHandler(writer http.ResponseWriter, r *http.Req
 		return
 	}
 
-	users, err := s.userStorage.ReadTodos()
+	users, err := s.todoStorage.ReadTodos()
 	if err != nil {
 		writer.Header().Set("Content-Type", "text/plain")
 		writer.WriteHeader(http.StatusInternalServerError)
+		if err != nil {
+			log.Printf("Unable to retrieve list of todos: %v", err)
+		}
 		_, err := writer.Write([]byte("Unable to retrieve list of todos"))
 		if err != nil {
 			log.Printf("Unable to retrieve list of todos: %v", err)
@@ -63,16 +67,25 @@ func (s ServerImpl) createTodoPageHandler(writer http.ResponseWriter, r *http.Re
 	http.ServeFile(writer, r, "create_todo.html")
 }
 
-// func (s ServerImpl) registerNewUserHandler(writer http.ResponseWriter, r *http.Request) {
-// 	userName := r.FormValue("first_name")
-// 	surname := r.FormValue("surname")
-// 	s.userStorage.AddUser(userName, surname)
-// 	log.Println("Registering new user", userName, surname)
-// 	http.ServeFile(writer, r, "index.html")
-// }
+func (s ServerImpl) createTodoHandler(writer http.ResponseWriter, r *http.Request) {
+	subject := r.FormValue("subject")
+	details := r.FormValue("details")
+	priority := r.FormValue("priority")
+	priority_value, err := strconv.Atoi(priority)
+	if err != nil {
+		priority_value = -1
+		log.Println("Setting default priority -1")
+
+	}
+	dueToDate := r.FormValue("due_to_date")
+
+	s.todoStorage.CreateTodo(subject, details, priority_value, dueToDate)
+	log.Println("Creating new todo", subject, details, priority_value, dueToDate)
+	http.ServeFile(writer, r, "index.html")
+}
 
 func (s ServerImpl) usersAPIHandler(writer http.ResponseWriter, r *http.Request) {
-	users, err := s.userStorage.ReadTodos()
+	users, err := s.todoStorage.ReadTodos()
 	if err != nil {
 		writer.Header().Set("Content-Type", "text/plain")
 		writer.WriteHeader(http.StatusInternalServerError)
@@ -102,7 +115,7 @@ func (s ServerImpl) Serve(port uint) {
 	http.HandleFunc("/", s.indexPageHandler)
 	http.HandleFunc("/list-todos", s.listUsersPageHandler)
 	http.HandleFunc("/create-todo-form", s.createTodoPageHandler)
-	// http.HandleFunc("/register-new-todo", s.registerNewUserHandler)
+	http.HandleFunc("/create-todo", s.createTodoHandler)
 
 	// REST API endpoints
 	http.HandleFunc("/todos", s.usersAPIHandler)

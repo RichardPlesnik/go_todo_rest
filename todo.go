@@ -1,8 +1,10 @@
 package main
 
 type Todo struct {
-	ID       int
-	Name     string
-	Content  string
-	Resolved bool
+	ID        int
+	Subject   string
+	Details   string
+	Priority  int
+	DueToDate string
+	Resolved  bool
 }

@@ -7,13 +7,26 @@
     <body>
         <h1>List of TODOs</h1>
         <table border="1">
-            <tr><th>ID</th><th>Name</th><th>Content</th><th>Resolved</th></tr>
+            <tr>
+                <th>ID</th>
+                <th>Subject</th>
+                <th>Detail</th>
+                <th>Priority</th>
+                <th>DueToDate</th>
+                <th>Resolved</th>
+            </tr>
                 {{range .}}
-            <tr><td>{{.ID}}</td><td>{{.Name}}</td><td>{{.Content}}</td><td>{{.Resolved}}</td></tr>
-                {{end}}
+            <tr>
+                <td>{{.ID}}</td>
+                <td>{{.Subject}}</td>
+                <td>{{.Details}}</td>
+                <td>{{.Priority}}</td>
+                <td>{{.DueToDate}}</td>
+                <td>{{.Resolved}}</td>
+            </tr>
+            {{end}}
         </table>
         <br />
         <a href="/">Back</a>
     </body>
 </html>
-

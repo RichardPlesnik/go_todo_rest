@@ -12,15 +12,22 @@
     </head>
     <body>
         <h1>Register new user</h1>
-        <form method="post">
-        <!-- <form action="/create-new-todo" method="post"> -->
+        <form action="/create-todo" method="post">
             <p>
-                <label>Name:</label>
-                <input name="first_name" />
+                <label>Subject:</label>
+                <input name="subject" />
             </p>
             <p>
-                <label>Content:</label>
-                <input name="surname" />
+                <label>Details:</label>
+                <textarea name="details"></textarea>
+            </p>
+            <p>
+                <label>Priority:</label>
+                <input type="number" name="priority" />
+            </p>
+            <p>
+                <label>Due to date:</label>
+                <input type="date" name="due_to_date">
             </p>
             <p>
                 <button type="submit">Create</button>
